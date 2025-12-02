@@ -7,8 +7,8 @@ splitTotIns = map splitIns
 start :: Int
 start = 50
 
-interpret :: [(Char, Int)] -> Int -> Int -> Int
-interpret [] _ count = count 
+interpret :: [(Char, Int)] -> Int -> Int -> (Int,Int)
+interpret [] point count = (point,count) 
 interpret (('L', val): xs) point count = interpret xs lcase (count + ifLZeroPlusOne)
     where
         lcase = (point - val) `mod` 100
