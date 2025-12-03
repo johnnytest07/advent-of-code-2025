@@ -1,43 +1,34 @@
-import Data.Char (isDigit)
-import System.IO (readFile)
 
--- Choose the lexicographically largest subsequence of length k from a digit string
-maxK :: Int -> String -> String
-maxK k s
-  | length s <= k = s
-  | otherwise     = take k finalTrimmed
-  where
-    remove = length s - k
 
-    -- stack: head is top (represents the rightmost kept digit so far, reversed)
-    go :: [Char] -> [Char] -> Int -> [Char]
-    go [] stack rm = stack
-    go (c:cs) stack rm
-      | rm > 0 && not (null stack) && head stack < c = go (c:cs) (tail stack) (rm - 1)
-      | otherwise = go cs (c : stack) rm
 
-    stackReversed = reverse (go s [] remove)   -- now in original left-to-right order
-    -- if removals remain (shouldn't normally except when all digits non-decreasing),
-    -- drop from the end
-    finalTrimmed =
-      let remLeft = remove - (length s - length stackReversed) -- remaining removals
-          len = length stackReversed
-      in if remLeft <= 0 then stackReversed else take (len - remLeft) stackReversed
+dropElem :: Int -> [Int] -> [Int]
+dropElem inp [] = []
+dropElem inp (x:xs)
+    |inp == x = xs
+    |otherwise = x:dropElem inp xs
 
--- Convert the chosen string of digits to Integer safely
-digitsToInteger :: String -> Integer
-digitsToInteger "" = 0
-digitsToInteger ds
-  | all isDigit ds = read ds :: Integer
-  | otherwise = error "Non-digit in input line"
+convertLstInt :: String -> [Int]
+convertLstInt = map (\ x -> read [x] :: Int)
 
--- Process one line: pick best 12-digit subsequence and return its Integer value
-best12FromLine :: String -> Integer
-best12FromLine line = digitsToInteger (maxK 12 line)
+digitsToInt :: [Int] -> Int
+digitsToInt = read . concatMap show
+
+reverseCompare :: [Int] -> [Int] -> Bool
+reverseCompare xs ys = digitsToInt (reverse xs) > digitsToInt (reverse ys)
+
+-- this is fed in backwards
+lstIterate :: [Int] -> [Int]
+lstIterate full@(x:xs)
+    |length full == 12 = full
+    |reverseCompare fstTwelve nextTwelve = lstIterate (fstTwelve ++ tail remaining)
+    |otherwise = lstIterate (nextTwelve ++ tail remaining)
+    where
+        (fstTwelve, remaining) = splitAt 12 full
+        nextTwelve = dropElem (minimum fstTwelve) fstTwelve ++ [head remaining]
 
 main :: IO ()
 main = do
-    contents <- readFile "input.txt"
-    let ls = filter (not . null) (lines contents)
-    let vals = map best12FromLine ls
-    print (sum vals)
+    file <- readFile "./input.txt"
+    let numArray = map convertLstInt (lines file)
+    let proper = map (reverse . lstIterate . reverse) numArray
+    print (map digitsToInt proper)
