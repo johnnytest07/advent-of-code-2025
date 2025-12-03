@@ -11,7 +11,6 @@ turnIntoPairs :: [Int] -> [(Int, Int)]
 turnIntoPairs [] = []
 turnIntoPairs (x:y:xs) = (x,y) : turnIntoPairs xs
 
--- Detect repeated digit patterns
 isRepeated :: String -> Bool
 isRepeated s =
     let n = length s

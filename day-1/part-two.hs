@@ -9,10 +9,12 @@ start = 50
 
 interpret :: [(Char, Int)] -> Int -> Int -> Int
 interpret [] _ count = count 
-interpret (('L', val): xs) point count = interpret xs lcase (count + noTimes)
+interpret (('L', val): xs) point count 
+    |val `mod` 100 == 0 = interpret xs lcase (count + noTimes - 1)
+    |otherwise = interpret xs lcase (count + noTimes)
     where
         lcase = (point - val) `mod` 100        
-        noTimes = (val + (99 - point)) `div` 100
+        noTimes = (val + (100 - point)) `div` 100
 interpret (('R', val): xs) point count = interpret xs rcase (count + noTimes)
     where
         rcase = (point + val) `mod` 100
