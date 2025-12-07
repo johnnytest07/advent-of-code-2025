@@ -1,6 +1,5 @@
 import Data.Set as Set
 
--- Split one line of the beam and also count how many splits occurred
 splitBeam :: Set Int -> String -> (Set Int, Int)
 splitBeam curLst inp
     | Set.null curLst = (initial, 0)
